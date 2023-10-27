@@ -2,15 +2,7 @@ import React from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Widget from "../../components/social-feed/widget";
 
-import {
-  Alert,
-  Button,
-  Input,
-  Loader,
-  Modal,
-  Section,
-  User,
-} from "../../components";
+import { Alert, Button, Loader, Section, User } from "../../components";
 
 import {
   Table,
@@ -24,14 +16,13 @@ import {
 } from "@material-ui/core";
 
 import {
-  add_amount,
   clearMessage,
   get_users,
-  make_admin,
+  remove_admin,
 } from "../../actions/firebaseAction";
 import { useDispatch, useSelector } from "react-redux";
 import { FiAlertCircle } from "react-icons/fi";
-import { XIcon } from "@heroicons/react/outline";
+import { APP_USERS } from "../../utils/constants";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -85,54 +76,28 @@ const Doctors = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [currentId, setCurrentId] = React.useState(null);
-  const [open, setOpen] = React.useState(false);
-  const [amount, setAmount] = React.useState("");
-
   const { firebase } = useSelector((state) => ({
     firebase: state.firebase,
   }));
   const {
     users,
     get_firebase_users_loading,
-    admin_loading,
+    remove_admin_loading,
     message,
     reason,
-    amount_loading,
   } = {
     ...firebase,
   };
-  const doctors = users?.filter((user) =>
-    user.data.role === "doctor" ? user : null
-  );
+  const admins = users?.filter((user) => (user.data.userType==APP_USERS.DONOR));
 
   React.useEffect(() => {
     dispatch(get_users());
   }, [dispatch]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(add_amount(currentId, amount));
-  };
-
   return (
     <Widget>
       <div>
-        {message && reason === "admin" ? (
-          <div className="w-full mb-4">
-            {(message !== null || message !== undefined) && (
-              <Alert
-                error={`text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800`}
-                icon={<FiAlertCircle className="mr-2 stroke-current h-4 w-4" />}
-                onClick={() => dispatch(clearMessage())}
-              >
-                {message}
-              </Alert>
-            )}
-          </div>
-        ) : null}
-      </div>
-      <div>
-        {message && reason === "doctor_amount" ? (
+        {message && reason === "not-admin" ? (
           <div className="w-full mb-4">
             {(message !== null || message !== undefined) && (
               <Alert
@@ -147,7 +112,7 @@ const Doctors = () => {
         ) : null}
       </div>
       <div className="mt-4 w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
-        <Section title="SnapSkin" description="All Doctors" />
+        <Section title="Reuse" description="All Donors" />
       </div>
       <div className="w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
         {get_firebase_users_loading ? (
@@ -156,7 +121,7 @@ const Doctors = () => {
           <div>
             <Grid className={classes.grid} container spacing={2}>
               <Grid item lg={12} md={12} sm={12} xs={12}>
-                {doctors !== null ? (
+                {admins !== null ? (
                   <TableContainer component={Paper}>
                     <Table
                       className={classes.table}
@@ -174,18 +139,16 @@ const Doctors = () => {
                             Last Name
                           </StyledTableCell>
                           <StyledTableCell align="left">Email</StyledTableCell>
-                          <StyledTableCell align="left">Role</StyledTableCell>
-                          <StyledTableCell align="left">Dob</StyledTableCell>
+                          <StyledTableCell align="left">UserName</StyledTableCell>
                           <StyledTableCell align="left">Status</StyledTableCell>
-
                           <StyledTableCell align="center">
                             Actions
                           </StyledTableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {doctors &&
-                          doctors?.map((item) => (
+                        {admins &&
+                          admins?.map((item) => (
                             <StyledTableRow key={item.id}>
                               <StyledTableCell align="left">
                                 {item.data.photoURL !== null ? (
@@ -211,42 +174,23 @@ const Doctors = () => {
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.role !== null ? (
-                                  <div
-                                    className={` p-2 rounded-lg flex items-center justify-center text-white ${
-                                      item.data.role === "user" ||
-                                      item.data.role === "doctor"
-                                        ? item.data.role === "user"
-                                          ? "bg-pink-200 border"
-                                          : "bg-blue-200 border"
-                                        : ""
-                                    }`}
-                                  >
-                                    {item.data.role}
-                                  </div>
-                                ) : (
-                                  "----"
-                                )}
-                              </StyledTableCell>
-                              <StyledTableCell align="left">
-                                {item.data.dob !== null
-                                  ? item.data.dob
+                                {item.data.username !== null
+                                  ? item.data.username
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.status !== null ? (
-                                  <div
-                                    className={` p-2 rounded-lg flex items-center justify-center text-white ${
-                                      item.data.status === "active"
-                                        ? "bg-green-200 border"
-                                        : ""
-                                    }`}
-                                  >
-                                    {item.data.status}
-                                  </div>
-                                ) : (
-                                  "----"
-                                )}
+                                {
+                                  item.data.isVerified ? (
+                                    <span className="text-green-500">
+                                      Verified
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500">
+                                      Not Verified
+                                    </span>
+                                  )
+                                  
+                                }
                               </StyledTableCell>
 
                               <StyledTableCell align="center">
@@ -254,8 +198,8 @@ const Doctors = () => {
                                   <Button
                                     text={
                                       item.data.isVerified
-                                        ? "Verified"
-                                        : "Unverified"
+                                        ? "Unverify"
+                                        : "Verify"
                                     }
                                     bg={`cursor-pointer ${
                                       item.data.isVerified
@@ -267,28 +211,6 @@ const Doctors = () => {
                                       state: item.id,
                                     }}
                                   />
-                                  <button
-                                    onClick={() => {
-                                      dispatch(make_admin(item.id));
-                                      setCurrentId(item.id);
-                                    }}
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                  >
-                                    {currentId === item.id && admin_loading ? (
-                                      <Loader />
-                                    ) : (
-                                      "Make Admin"
-                                    )}
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setOpen(true);
-                                      setCurrentId(item.id);
-                                    }}
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                  >
-                                    Add Amount
-                                  </button>
                                 </div>
                               </StyledTableCell>
                             </StyledTableRow>
@@ -302,32 +224,6 @@ const Doctors = () => {
           </div>
         )}
       </div>
-
-      <Modal
-        title="Add Doctor's Amount"
-        icon={<XIcon className="w-5 h-5 text-red-500 hover:text-red-600" />}
-        open={open}
-        setOpen={setOpen}
-        handleSubmit={handleSubmit}
-      >
-        <div className="flex flex-col gap-4 p-4">
-          <Input
-            title="Amount"
-            name="enter amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            rows={5}
-          />
-          <div>
-            <button
-              className="btn btn-default btn-rounded btn-icon bg-tunziblue hover:bg-tunziblue text-white space-x-1"
-              type="submit"
-            >
-              {amount_loading ? <Loader /> : <span>Submit</span>}
-            </button>
-          </div>
-        </div>
-      </Modal>
     </Widget>
   );
 };

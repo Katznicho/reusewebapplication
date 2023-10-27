@@ -37,7 +37,7 @@ const initialState = [
         items: [],
       },
       {
-        url: "/community",
+        url: "/communities",
         icon: <FiAlertTriangle size={20} />,
         title: "Community",
         items: [],

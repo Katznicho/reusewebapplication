@@ -82,7 +82,6 @@ const Notifications = () => {
   const [notifications , setNotifications] = useState([]);
 
 
-  console.log(notifications);
 
   useEffect(() => {
      setLoading(true);

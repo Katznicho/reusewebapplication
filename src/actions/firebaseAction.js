@@ -17,6 +17,7 @@ import {
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signOut
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebase";
 
@@ -29,9 +30,7 @@ export const get_user_data = (userId) => async (dispatch) => {
   try {
     const colRef = doc(db, "users", userId);
     const results = await getDoc(colRef);
-    console.log(":=============>");
-    console.log(results);
-    console.log(":=============>");
+  
     dispatch({
       type: types.GET_USER_DATA_SUCCESS,
       payload: "this is working",
@@ -499,4 +498,117 @@ export async function sendPushNotification(title, message, token) {
     throw error; // Rethrow the error to handle it outside this function if needed.
   }
 }
+
+//new
+export const getUserById = async (userId) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return { id: userDoc.id, data: userDoc.data() };
+    } else {
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+//update the product status and total amount pass the id of the product
+export const updateProductStatus = async (id, status, totalAmount, reason = '') => {
+  try {
+    await updateDoc(doc(db, 'products', id), {
+      status: status,
+      totalAmount: totalAmount,
+      reason
+    });
+  } catch (error) {}
+};
+
+export const getProductById = async (productId) => {
+  try {
+    const productDoc = await getDoc(doc(db, 'products', productId));
+    if (productDoc.exists()) {
+      return { id: productDoc.id, data: productDoc.data() };
+    } else {
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+
+//get all categories
+export const getAllCategories = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'categories'));
+    const categories = [];
+    querySnapshot.forEach((doc) => {
+      categories.push({ id: doc.id, data: doc.data() });
+    });
+    return categories;
+  } catch (error) {
+    console.error('Error Occurred:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+//get category by id
+export const getCategoryById = async (categoryId) => {
+  try {
+    const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
+    if (categoryDoc.exists()) {
+      return { id: categoryDoc.id, data: categoryDoc.data() };
+    } else {
+      throw new Error('Category not found');
+    }
+  } catch (error) {
+    console.error('Error fetching category:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+export const getTotalProducts = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    return querySnapshot.size;
+  } catch (error) {
+    console.error('Error Occurred:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+export const getTotalUsers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'users'));
+    return querySnapshot.size;
+  } catch (error) {
+    console.error('Error Occurred:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+
+export const signIn = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    return user;
+  } catch (error) {
+    console.error('Sign-In Error:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+export const signUserOut = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error('Sign-Out Error:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+//new
 

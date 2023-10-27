@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Widget from "../../components/social-feed/widget";
 
@@ -14,14 +14,10 @@ import {
   Grid,
   Paper,
 } from "@material-ui/core";
+// import { useHistory } from "react-router-dom";
+import {useHistory} from "react-router-dom"
+import { getProducts } from "../../actions/firebaseAction";
 
-import {
-  clearMessage,
-  get_users,
-  remove_admin,
-} from "../../actions/firebaseAction";
-import { useDispatch, useSelector } from "react-redux";
-import { FiAlertCircle } from "react-icons/fi";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -72,55 +68,38 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Products = () => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const [currentId, setCurrentId] = React.useState(null);
-  const { firebase } = useSelector((state) => ({
-    firebase: state.firebase,
-  }));
-  const {
-    users,
-    get_firebase_users_loading,
-    remove_admin_loading,
-    message,
-    reason,
-  } = {
-    ...firebase,
-  };
-  const admins = users?.filter((user) => (user.data.isAdmin ? user : null));
 
-  React.useEffect(() => {
-    dispatch(get_users());
-  }, [dispatch]);
+   const history = useHistory();
+
+  const classes = useStyles();
+  const [products, setProducts]=  useState([]);
+  const [loading , setLoading] =  useState(false);
+
+  
+
+  useEffect(() => {
+    setLoading(true);
+    getProducts().then((data)=>{
+     setProducts(data)
+   })
+   setLoading(false);
+ }, []);
+
+
 
   return (
     <Widget>
-      <div>
-        {message && reason === "not-admin" ? (
-          <div className="w-full mb-4">
-            {(message !== null || message !== undefined) && (
-              <Alert
-                error={`text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800`}
-                icon={<FiAlertCircle className="mr-2 stroke-current h-4 w-4" />}
-                onClick={() => dispatch(clearMessage())}
-              >
-                {message}
-              </Alert>
-            )}
-          </div>
-        ) : null}
-      </div>
       <div className="mt-4 w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
-        <Section title="SnapSkin" description="All users" />
+        <Section title="Reuse" description="All Products" />
       </div>
       <div className="w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
-        {get_firebase_users_loading ? (
+        {loading? (
           <Loader fill="#111" styles="" />
         ) : (
           <div>
             <Grid className={classes.grid} container spacing={2}>
               <Grid item lg={12} md={12} sm={12} xs={12}>
-                {admins !== null ? (
+                {products.length>0 ? (
                   <TableContainer component={Paper}>
                     <Table
                       className={classes.table}
@@ -129,17 +108,17 @@ const Products = () => {
                       <TableHead>
                         <TableRow>
                           <StyledTableCell align="left">
-                            Profile
+                            Image
                           </StyledTableCell>
                           <StyledTableCell align="left">
-                            First Name
+                            Product
                           </StyledTableCell>
                           <StyledTableCell align="left">
-                            Last Name
+                            Category
                           </StyledTableCell>
-                          <StyledTableCell align="left">Email</StyledTableCell>
-                          <StyledTableCell align="left">Role</StyledTableCell>
-                          <StyledTableCell align="left">Dob</StyledTableCell>
+                          <StyledTableCell align="left">Weight</StyledTableCell>
+                          <StyledTableCell align="left">Location</StyledTableCell>
+                          <StyledTableCell align="left">Description</StyledTableCell>
                           <StyledTableCell align="left">Status</StyledTableCell>
 
                           <StyledTableCell align="center">
@@ -148,53 +127,40 @@ const Products = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {admins &&
-                          admins?.map((item) => (
+                        {products &&
+                          products?.map((item) => (
                             <StyledTableRow key={item.id}>
                               <StyledTableCell align="left">
-                                {item.data.photoURL !== null ? (
+                                {item.data?.coverImage !== null ? (
                                   <User
-                                    image={item.data.photoURL}
-                                    alt={item.firstName}
+                                    image={item.data.coverImage}
+                                    alt={item.title}
                                   />
                                 ) : null}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.firstName !== null
-                                  ? item.data.firstName
+                                {item.data.title !== null
+                                  ? item.data.title
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.lastName !== null
-                                  ? item.data.lastName
+                                {item.data.category !== null
+                                  ? item.data.category
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.email !== null
-                                  ? item.data.email
+                                {item.data.estimatedWeight !== null
+                                  ? item.data.estimatedWeight
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.role !== null ? (
-                                  <div
-                                    className={` p-2 rounded-lg flex items-center justify-center text-white ${
-                                      item.data.role === "user" ||
-                                      item.data.role === "doctor"
-                                        ? item.data.role === "user"
-                                          ? "bg-pink-200 border"
-                                          : "bg-blue-200 border"
-                                        : ""
-                                    }`}
-                                  >
-                                    {item.data.role}
-                                  </div>
-                                ) : (
-                                  "----"
-                                )}
+                              {item.data.estimatedPickUp !== null
+                                  ? item.data.estimatedPickUp
+                                  : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.dob !== null
-                                  ? item.data.dob
+                                {item.data.description !== null
+                                  ? item.data.description
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
@@ -205,35 +171,14 @@ const Products = () => {
 
                               <StyledTableCell align="center">
                                 <div className="flex items-center justify-center space-x-4">
-                                  <Button
-                                    text={
-                                      item.data.isVerified
-                                        ? "Verified"
-                                        : "Unverified"
-                                    }
-                                    bg={`cursor-pointer ${
-                                      item.data.isVerified
-                                        ? "bg-green-500"
-                                        : "bg-red-500"
-                                    }`}
-                                    to={{
-                                      pathname: "/verify-page",
-                                      state: item.id,
-                                    }}
-                                  />
+                                  
                                   <button
                                     onClick={() => {
-                                      dispatch(remove_admin(item.id));
-                                      setCurrentId(item.id);
+                                     history.push(`productdetails/${item.id}`)
                                     }}
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                   >
-                                    {currentId === item.id &&
-                                    remove_admin_loading ? (
-                                      <Loader />
-                                    ) : (
-                                      "Remove Admin privilege"
-                                    )}
+                                    View Details
                                   </button>
                                 </div>
                               </StyledTableCell>

@@ -22,6 +22,7 @@ import {
 } from "../../actions/firebaseAction";
 import { useDispatch, useSelector } from "react-redux";
 import { FiAlertCircle } from "react-icons/fi";
+import { APP_USERS } from "../../utils/constants";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -87,7 +88,7 @@ const Donors = () => {
   } = {
     ...firebase,
   };
-  const admins = users?.filter((user) => (user.data.isAdmin ? user : null));
+  const admins = users?.filter((user) => (user.data.userType==APP_USERS.DONOR));
 
   React.useEffect(() => {
     dispatch(get_users());
@@ -111,7 +112,7 @@ const Donors = () => {
         ) : null}
       </div>
       <div className="mt-4 w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
-        <Section title="SnapSkin" description="All users" />
+        <Section title="Reuse" description="All Donors" />
       </div>
       <div className="w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
         {get_firebase_users_loading ? (
@@ -138,10 +139,8 @@ const Donors = () => {
                             Last Name
                           </StyledTableCell>
                           <StyledTableCell align="left">Email</StyledTableCell>
-                          <StyledTableCell align="left">Role</StyledTableCell>
-                          <StyledTableCell align="left">Dob</StyledTableCell>
+                          <StyledTableCell align="left">UserName</StyledTableCell>
                           <StyledTableCell align="left">Status</StyledTableCell>
-
                           <StyledTableCell align="center">
                             Actions
                           </StyledTableCell>
@@ -175,32 +174,23 @@ const Donors = () => {
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.role !== null ? (
-                                  <div
-                                    className={` p-2 rounded-lg flex items-center justify-center text-white ${
-                                      item.data.role === "user" ||
-                                      item.data.role === "doctor"
-                                        ? item.data.role === "user"
-                                          ? "bg-pink-200 border"
-                                          : "bg-blue-200 border"
-                                        : ""
-                                    }`}
-                                  >
-                                    {item.data.role}
-                                  </div>
-                                ) : (
-                                  "----"
-                                )}
-                              </StyledTableCell>
-                              <StyledTableCell align="left">
-                                {item.data.dob !== null
-                                  ? item.data.dob
+                                {item.data.username !== null
+                                  ? item.data.username
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.status !== null
-                                  ? item.data.status
-                                  : "----"}
+                                {
+                                  item.data.isVerified ? (
+                                    <span className="text-green-500">
+                                      Verified
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500">
+                                      Not Verified
+                                    </span>
+                                  )
+                                  
+                                }
                               </StyledTableCell>
 
                               <StyledTableCell align="center">
@@ -208,8 +198,8 @@ const Donors = () => {
                                   <Button
                                     text={
                                       item.data.isVerified
-                                        ? "Verified"
-                                        : "Unverified"
+                                        ? "Unverify"
+                                        : "Verify"
                                     }
                                     bg={`cursor-pointer ${
                                       item.data.isVerified
@@ -221,20 +211,6 @@ const Donors = () => {
                                       state: item.id,
                                     }}
                                   />
-                                  <button
-                                    onClick={() => {
-                                      dispatch(remove_admin(item.id));
-                                      setCurrentId(item.id);
-                                    }}
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                  >
-                                    {currentId === item.id &&
-                                    remove_admin_loading ? (
-                                      <Loader />
-                                    ) : (
-                                      "Remove Admin privilege"
-                                    )}
-                                  </button>
                                 </div>
                               </StyledTableCell>
                             </StyledTableRow>

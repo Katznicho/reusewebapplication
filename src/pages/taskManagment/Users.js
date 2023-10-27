@@ -18,10 +18,11 @@ import {
 import {
   clearMessage,
   get_users,
-  make_admin,
+  remove_admin,
 } from "../../actions/firebaseAction";
 import { useDispatch, useSelector } from "react-redux";
 import { FiAlertCircle } from "react-icons/fi";
+import { APP_USERS } from "../../utils/constants";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -75,19 +76,19 @@ const Users = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [currentId, setCurrentId] = React.useState(null);
-
   const { firebase } = useSelector((state) => ({
     firebase: state.firebase,
   }));
-
-  const { get_firebase_users_loading, users, admin_loading, message, reason } =
-    {
-      ...firebase,
-    };
-
-  const only_users = users?.filter((user) =>
-    user.data.role === "user" ? user : null
-  );
+  const {
+    users,
+    get_firebase_users_loading,
+    remove_admin_loading,
+    message,
+    reason,
+  } = {
+    ...firebase,
+  };
+  const admins = users?.filter((user) => (user.data.userType==APP_USERS.DONOR));
 
   React.useEffect(() => {
     dispatch(get_users());
@@ -96,7 +97,7 @@ const Users = () => {
   return (
     <Widget>
       <div>
-        {message && reason === "admin" ? (
+        {message && reason === "not-admin" ? (
           <div className="w-full mb-4">
             {(message !== null || message !== undefined) && (
               <Alert
@@ -111,7 +112,7 @@ const Users = () => {
         ) : null}
       </div>
       <div className="mt-4 w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
-        <Section title="SnapSkin" description="All users" />
+        <Section title="Reuse" description="All Donors" />
       </div>
       <div className="w-full p-4 rounded-lg bg-white border border-grey-100 dark:bg-grey-895 dark:border-grey-890">
         {get_firebase_users_loading ? (
@@ -120,7 +121,7 @@ const Users = () => {
           <div>
             <Grid className={classes.grid} container spacing={2}>
               <Grid item lg={12} md={12} sm={12} xs={12}>
-                {only_users !== null ? (
+                {admins !== null ? (
                   <TableContainer component={Paper}>
                     <Table
                       className={classes.table}
@@ -138,18 +139,16 @@ const Users = () => {
                             Last Name
                           </StyledTableCell>
                           <StyledTableCell align="left">Email</StyledTableCell>
-                          <StyledTableCell align="left">Role</StyledTableCell>
-                          <StyledTableCell align="left">Dob</StyledTableCell>
+                          <StyledTableCell align="left">UserName</StyledTableCell>
                           <StyledTableCell align="left">Status</StyledTableCell>
-
                           <StyledTableCell align="center">
                             Actions
                           </StyledTableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {only_users &&
-                          only_users?.map((item) => (
+                        {admins &&
+                          admins?.map((item) => (
                             <StyledTableRow key={item.id}>
                               <StyledTableCell align="left">
                                 {item.data.photoURL !== null ? (
@@ -175,41 +174,32 @@ const Users = () => {
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.role !== null ? (
-                                  <div
-                                    className={` p-2 rounded-lg flex items-center justify-center text-white ${
-                                      item.data.role === "user" ||
-                                      item.data.role === "doctor"
-                                        ? item.data.role === "user"
-                                          ? "bg-blue-200 border"
-                                          : "bg-blue-200 border"
-                                        : ""
-                                    }`}
-                                  >
-                                    {item.data.role}
-                                  </div>
-                                ) : (
-                                  "----"
-                                )}
-                              </StyledTableCell>
-                              <StyledTableCell align="left">
-                                {item.data.dob !== null
-                                  ? item.data.dob
+                                {item.data.username !== null
+                                  ? item.data.username
                                   : "----"}
                               </StyledTableCell>
                               <StyledTableCell align="left">
-                                {item.data.status !== null
-                                  ? item.data.status
-                                  : "----"}
+                                {
+                                  item.data.isVerified ? (
+                                    <span className="text-green-500">
+                                      Verified
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-500">
+                                      Not Verified
+                                    </span>
+                                  )
+                                  
+                                }
                               </StyledTableCell>
 
                               <StyledTableCell align="center">
-                                <div className="flex space-x-4 items-center justify-center">
+                                <div className="flex items-center justify-center space-x-4">
                                   <Button
                                     text={
                                       item.data.isVerified
-                                        ? "Verified"
-                                        : "Unverified"
+                                        ? "Unverify"
+                                        : "Verify"
                                     }
                                     bg={`cursor-pointer ${
                                       item.data.isVerified
@@ -221,19 +211,6 @@ const Users = () => {
                                       state: item.id,
                                     }}
                                   />
-                                  <button
-                                    onClick={() => {
-                                      dispatch(make_admin(item.id));
-                                      setCurrentId(item.id);
-                                    }}
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                  >
-                                    {currentId === item.id && admin_loading ? (
-                                      <Loader />
-                                    ) : (
-                                      "Make Admin"
-                                    )}
-                                  </button>
                                 </div>
                               </StyledTableCell>
                             </StyledTableRow>
