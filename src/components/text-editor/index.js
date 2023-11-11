@@ -3,12 +3,11 @@ import ReactQuill from 'react-quill'
 import './styles.css'
 import beautify from 'js-beautify'
 
-export const CustomToolbarExample = () => {
-  const [value, setValue] = useState('')
+export const CustomToolbarExample = ({value , setValue}) => {
   const modules = {
     toolbar: [
       //[{header: [1, 2, false]}],
-      ['bold', 'italic', 'underline', 'strike', 'link', 'image']
+      //['bold', 'italic', 'underline', 'strike', 'link', 'image']
       //[{list: 'ordered'}, {list: 'bullet'}, {indent: '-1'}, {indent: '+1'}],
       //['clean']
     ]
@@ -16,25 +15,27 @@ export const CustomToolbarExample = () => {
 
   const formats = [
     //'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    /*
-    'blockquote',
-    'list',
-    'bullet',
-    'indent',
-    */
-    'link',
-    'image'
+    // 'bold',
+    // 'italic',
+    // 'underline',
+    // 'strike',
+    
+    // 'blockquote',
+    // 'list',
+    // 'bullet',
+    // 'indent',
+    
+    // 'link',
+    // 'image'
   ]
   return (
     <div className="w-full">
       <ReactQuill
         theme="snow"
         value={value}
-        onChange={setValue}
+        onChange={(e) =>{
+          setValue(e)
+        }}
         modules={modules}
         formats={formats}
       />

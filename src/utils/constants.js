@@ -7,3 +7,12 @@ export const APP_USERS = {
     ALL: "All"
 
 }
+
+export const PRODUCT_STATUSES = {
+    
+    APPROVED: "APPROVED",
+    PENDING: "PENDING",
+    REJECTED: "REJECTED",
+    ALL: "All",
+    ACCEPTED: "ACCEPTED"
+}

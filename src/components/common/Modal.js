@@ -55,11 +55,11 @@ const Modal = ({ title, icon, open, setOpen, handleSubmit, children }) => {
                     </div>
                   </div>
                 </div>
-                {handleSubmit && (
-                  <Form onSubmit={handleSubmit}>
+                
+                  {/* <Form onSubmit={handleSubmit}> */}
                     <div>{children}</div>
-                  </Form>
-                )}
+                  {/* </Form> */}
+              
               </div>
             </div>
           </div>
