@@ -3,15 +3,13 @@ import React from "react";
 import Widget from "../../components/social-feed/widget";
 import {
   Alert,
-  Button,
   Card,
   Loader,
-  Modal,
   Profile,
   User,
+  Section
 } from "../../components";
-import { Section } from "../../components";
-import { Link, useLocation } from "react-router-dom";
+import {  useLocation } from "react-router-dom";
 import {
   clearMessage,
   un_verify_user,
@@ -19,7 +17,7 @@ import {
 } from "../../actions/firebaseAction";
 import { useDispatch, useSelector } from "react-redux";
 import { FiAlertCircle } from "react-icons/fi";
-import { XIcon } from "@heroicons/react/outline";
+
 
 const VerifyPage = () => {
   const [open, setOpen] = React.useState(false);
