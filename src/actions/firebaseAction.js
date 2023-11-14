@@ -6,6 +6,7 @@ import {
   getDoc,
   updateDoc,
   addDoc,
+  setDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -30,7 +31,7 @@ export const get_user_data = (userId) => async (dispatch) => {
   try {
     const colRef = doc(db, "users", userId);
     const results = await getDoc(colRef);
-  
+
     dispatch({
       type: types.GET_USER_DATA_SUCCESS,
       payload: "this is working",
@@ -151,7 +152,7 @@ export const get_payments = () => async (dispatch) => {
 
 //get notifications
 export const get_notifications = () => async () => {
-  
+
   try {
     const querySnapshot = await getDocs(collection(db, "notifications"));
     const results = [];
@@ -159,9 +160,9 @@ export const get_notifications = () => async () => {
       results.push({ id: doc.id, data: doc.data() });
     });
     return results;
-    
+
   } catch (error) {
-   
+
   }
 };
 
@@ -326,7 +327,7 @@ export const user_login = (loginValues) => async (dispatch) => {
     console.log("=============user credentials====================")
     console.log(userCredential.user.uid)
     console.log("=============user credentials====================")
-     
+
     const data = {
       uid: userCredential.user.uid,
       email: userCredential.user.email,
@@ -339,7 +340,7 @@ export const user_login = (loginValues) => async (dispatch) => {
     return data;
   } catch (error) {
     console.log("===============error ==================================")
-     console.error('Error Occurred:', JSON.stringify(error));
+    console.error('Error Occurred:', JSON.stringify(error));
     console.log("================error=================================")
     dispatch({
       type: types.LOGIN_FAIL,
@@ -442,7 +443,7 @@ export const storeNotification = async (notificationData) => {
 
 //get all notifications
 export const getNotifications = async () => {
-  
+
   try {
     const querySnapshot = await getDocs(collection(db, 'notifications'));
     const notifications = [];
@@ -522,8 +523,51 @@ export const updateProductStatus = async (id, status, totalAmount, reason = '') 
       totalAmount: totalAmount,
       reason
     });
-  } catch (error) {}
+  } catch (error) { }
 };
+
+
+//get product payment by id
+export const getProductPaymentById = async (paymentId) => {
+  try {
+    const paymentDoc = await getDoc(doc(db, 'payments', paymentId));
+    if (paymentDoc.exists()) {
+      return { id: paymentDoc.id, data: paymentDoc.data() };
+    } else {
+      throw new Error('Payment not found');
+    }
+  } catch (error) {
+    console.error('Error fetching payment:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+//get delivery details by id
+export const getDeliveryById = async (deliveryId) => {
+  try {
+    const deliveryDoc = await getDoc(doc(db, 'delivery', deliveryId));
+    if (deliveryDoc.exists()) {
+      return { id: deliveryDoc.id, data: deliveryDoc.data() };
+    } else {
+      throw new Error('Delivery not found');
+    }
+  } catch (error) {
+    console.error('Error fetching delivery:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+//store the deliveru details using the product id as the doc id
+export const storeDeliveryDetails = async (productId, deliveryDetails) => {
+  try {
+    await setDoc(doc(db, 'delivery', productId), deliveryDetails);
+  } catch (error) {
+    console.error('Error storing delivery details:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+
 
 export const getProductById = async (productId) => {
   try {

@@ -113,7 +113,7 @@ const tabs = [
   {index: 2, title: 'Options', active: false, content: <Tab2 />}
 ]
 
-const Index = () => (
+const MyTabs = () => (
   <>
     <SectionTitle title="UI Elements" subtitle="Tabs" />
 
@@ -192,4 +192,4 @@ const Index = () => (
     </Widget>
   </>
 )
-export default Index
+export default MyTabs

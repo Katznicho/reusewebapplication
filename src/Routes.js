@@ -15,7 +15,7 @@ import Products from "./pages/taskManagment/Products";
 import Community from "./pages/taskManagment/Community";
 import Donors from "./pages/taskManagment/Donors";
 import ProductDetails from "./pages/taskManagment/ProductDetails";
-import ProductPayment from "./pages/taskManagment/ProductPayment";
+import MyTabs from "./pages/tabs";
 const Routes = () => {
   return (
     <Switch>
@@ -25,8 +25,8 @@ const Routes = () => {
       <AuthenticationRoute path="/communities" component={Community} />/
       <AuthenticationRoute path="/verify-page" component={VerifyPage} />
       <AuthenticationRoute path="/productdetails/:id" component={ProductDetails} />
-      <AuthenticationRoute path="/productpaymentstatus/:id" component={ProductPayment} />
-      
+      <AuthenticationRoute path="/testtabs" component={MyTabs} />
+
       <AuthenticationRoute path="/admins" component={Admins} />
       <AuthenticationRoute path="/payments" component={Payments} />
       <AuthenticationRoute path="/notifications" component={Notifications} />
