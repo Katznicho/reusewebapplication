@@ -324,9 +324,7 @@ export const user_login = (loginValues) => async (dispatch) => {
       password
     );
 
-    console.log("=============user credentials====================")
-    console.log(userCredential.user.uid)
-    console.log("=============user credentials====================")
+
 
     const data = {
       uid: userCredential.user.uid,
@@ -339,9 +337,7 @@ export const user_login = (loginValues) => async (dispatch) => {
     });
     return data;
   } catch (error) {
-    console.log("===============error ==================================")
-    console.error('Error Occurred:', JSON.stringify(error));
-    console.log("================error=================================")
+
     dispatch({
       type: types.LOGIN_FAIL,
       payload: error.FirebaseError,
@@ -549,7 +545,7 @@ export const getDeliveryById = async (deliveryId) => {
     if (deliveryDoc.exists()) {
       return { id: deliveryDoc.id, data: deliveryDoc.data() };
     } else {
-      throw new Error('Delivery not found');
+      return null;
     }
   } catch (error) {
     console.error('Error fetching delivery:', error);
@@ -563,6 +559,18 @@ export const storeDeliveryDetails = async (productId, deliveryDetails) => {
     await setDoc(doc(db, 'delivery', productId), deliveryDetails);
   } catch (error) {
     console.error('Error storing delivery details:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+};
+
+//update the product set isDeliverySet to true
+export const updateProductDeliveryStatus = async (productId) => {
+  try {
+    await updateDoc(doc(db, 'products', productId), {
+      isDeliverySet: true,
+    });
+  } catch (error) {
+    console.error('Error updating product delivery status:', error);
     throw error; // Rethrow the error to handle it outside this function if needed.
   }
 };
