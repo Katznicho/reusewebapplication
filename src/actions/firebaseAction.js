@@ -432,7 +432,8 @@ export const storeNotification = async (notificationData) => {
       createdAt: new Date()
     });
   } catch (error) {
-    console.error('Error Occurred:', error);
+    alert("an error occured while creating a notification")
+    console.error('Error Occurred:', JSON.stringify(error));
     throw error; // Rethrow the error to handle it outside this function if needed.
   }
 };
@@ -488,9 +489,11 @@ export async function sendPushNotification(title, message, token) {
       },
       body: JSON.stringify(notification)
     });
+    // alert("token", token)
 
     return response.json();
   } catch (error) {
+    alert('Error sending push notification:', error.message);
     console.error('FCM Error:', error);
     throw error; // Rethrow the error to handle it outside this function if needed.
   }
@@ -519,7 +522,13 @@ export const updateProductStatus = async (id, status, totalAmount, reason = '') 
       totalAmount: totalAmount,
       reason
     });
-  } catch (error) { }
+  } catch (error) {
+    alert('Error updating product status:', error.message);
+    console.log("===============================================")
+    console.error('Error updating product status:', error);
+    console.log("===============================================")
+
+  }
 };
 
 
@@ -552,6 +561,24 @@ export const getDeliveryById = async (deliveryId) => {
     throw error; // Rethrow the error to handle it outside this function if needed.
   }
 };
+
+export const updateDelivery = async (deliveryId) => {
+
+  try {
+    let res = await updateDoc(doc(db, 'delivery', deliveryId), {
+      isProductDelivered: true,
+      status: "DELIVERED"
+    });
+
+  } catch (error) {
+    alert("failed to update delivery")
+    console.error('Error updating delivery:', error);
+    throw error; // Rethrow the error to handle it outside this function if needed.
+  }
+}
+
+//update product delivery status
+
 
 //store the deliveru details using the product id as the doc id
 export const storeDeliveryDetails = async (productId, deliveryDetails) => {

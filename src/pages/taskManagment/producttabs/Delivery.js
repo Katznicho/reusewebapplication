@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom';
 import SectionTitle from '../../../components/section-title';
 import Widget from '../../../components/widget';
-import { getProductById, getUserById, getDeliveryById } from '../../../actions/firebaseAction';
+import { getProductById, getUserById, getDeliveryById, updateProductDeliveryStatus, updateProductStatus, sendPushNotification, storeNotification, updateDelivery } from '../../../actions/firebaseAction';
+import { PRODUCT_STATUSES } from '../../../utils/constants';
 
 function ProductDelivery() {
     const [productDetails, setProductDetails] = useState({});
@@ -33,6 +34,35 @@ function ProductDelivery() {
         setIsOpenRejectDialog(true);
     };
 
+    const onDelivered = () => {
+        // alert(deliveryDetails.id)
+
+        updateDelivery(deliveryDetails.id);
+        // history.push('/taskManagment');
+        const title = `${productDetails?.data?.title} Delivered`;
+        const message = `Hello ${users?.data?.firstName} ${users?.data?.lastName} your product has been delivered please check the app for more details`;
+        const token = users?.data?.deviceId;
+
+        updateProductStatus(productDetails?.id, PRODUCT_STATUSES.DELIVERED, totalAmount, reason);
+
+        if (token) {
+            sendPushNotification(title, message, token);
+        }
+        // // Call the storeNotification function with the notification data
+        const notificationData = {
+            // Add your notification data here,
+            description: `Hello ${users?.data?.firstName} ${users?.data?.lastName} your product has been delivered please check the app for more details`,
+            status: PRODUCT_STATUSES.ACCEPTED,
+            unRead: true,
+            title: `${productDetails?.data?.title} Delivered`,
+            userId: productDetails?.data?.userId
+        };
+
+        storeNotification(notificationData);
+        alert("Product Delivered");
+        window.location.reload();
+    }
+
 
 
 
@@ -43,6 +73,9 @@ function ProductDelivery() {
             setProductDetails(productDetails);
             if (productDetails) {
                 const delivery = await getDeliveryById(params.id);
+                console.log("========deliverey==============")
+                console.log(delivery);
+                console.log("=====================")
                 setDeliveryDetails(delivery);
             }
         } catch (error) {
@@ -109,6 +142,17 @@ function ProductDelivery() {
                                         </div>
                                     </div>
                                     {/* delivery status */}
+
+                                    {/* buttons */}
+                                    {/* button section */}
+                                    <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                                        <button
+                                            onClick={onDelivered}
+                                            className="inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 mx-1 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        >
+                                            Update Delivery
+                                        </button>
+                                    </div>
                                 </div>
                             }
                         </div>

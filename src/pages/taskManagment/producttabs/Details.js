@@ -91,6 +91,8 @@ function Details() {
       const message = `Hello ${users?.data?.firstName} ${users?.data?.lastName} your product has been accepted please check the app for more details`;
       const token = users?.data?.deviceId;
 
+
+
       updateProductStatus(productDetails?.id, PRODUCT_STATUSES.ACCEPTED, totalAmount, reason);
 
       if (token) {
@@ -119,7 +121,7 @@ function Details() {
       alert("Product Accepted");
 
       //reload page
-      window.location.reload();
+      // window.location.reload();
 
 
       //navigate  to all products
